@@ -71,7 +71,7 @@ neigh_modify	exclude type 2 3
 #outputs
 
 #vmd files
-dump		1 all atom 500 ./dump/dump.crack_*.lammpstrj
+dump		1 all atom 500 ./dump/dump.crack_*.atom
 
 #normal image view
 dump		2 all image 250 ./dump/test.image.*.jpg mass type view 0 -90 size 2048 1152 box yes 0.5 &
