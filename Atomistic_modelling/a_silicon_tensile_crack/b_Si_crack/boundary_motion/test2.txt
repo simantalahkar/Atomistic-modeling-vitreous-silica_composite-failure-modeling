@@ -73,7 +73,7 @@ thermo_modify	temp new
 neigh_modify	exclude type 2 3
 
 #Used to visualize in vmd
-dump		1 all atom 500 ./dump/dump.crack_*.lammpstrj
+dump		1 all atom 500 ./dump/dump.crack_*.atom
 
 #Normal view image
 dump		2 all image 250 ./dump/test.image.*.jpg mass type view 0 -90 size 2048 1152 box yes 0.5 &
