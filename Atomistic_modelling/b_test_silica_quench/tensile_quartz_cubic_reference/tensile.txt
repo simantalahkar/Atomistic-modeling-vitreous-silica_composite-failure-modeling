@@ -20,7 +20,7 @@ compute new all temp
 #reset_timestep	0
 timestep 0.001
 velocity all create 300.0 12345 mom yes rot no
-fix 1 all npt temp 300.00 300.00 1 iso 0 0 1 drag 1 
+fix 1 all npt temp 300.00 300.00 0.1 iso 0 0 1 drag 2
 
 # Set thermo output
 thermo 50
@@ -48,7 +48,7 @@ print "final density: ${den}"
 # DEFORMATION: tensile test
 #reset_timestep	0
 
-fix		1 all npt temp 300.0 300.0 1 y 0 0 1 z 0 0 1 drag 1
+fix		1 all npt temp 300.0 300.0 0.1 y 0 0 1 z 0 0 1 drag 2
 variable srate equal 1.0e10
 variable srate1 equal "v_srate / 1.0e12"
 fix		2 all deform 1 x erate ${srate1} units box remap x
@@ -75,7 +75,7 @@ dump		1 all image 250 ./dump/image.tensile.*.jpg type type &
 		zoom 1 adiam 1.2
 dump_modify	1 pad 4
 
-dump		2 all custom 100 ./dump/dump.tensile_*.custom id type x y z
+dump		2 all custom 100 ./dump/dump.tensile_*.atom id type x y z
 
 
 
