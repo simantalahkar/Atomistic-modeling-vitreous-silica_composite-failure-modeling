@@ -26,7 +26,7 @@ velocity  all create 300.0 5648459 temp new
 
 
 #Thermostat
-fix 1 all nvt temp 300.0 300.0 1.0
+fix 1 all nvt temp 300.0 300.0 0.1
 
 
 
@@ -38,7 +38,7 @@ thermo_style custom step temp epair emol etotal press cpuremain lx ly lz
 
 #Dump format: dump ID group-ID style N file args
 
-dump  1 all custom 1000 ./dump/*.dump_melt id type x y z
+dump  1 all custom 1000 ./dump/*.atom id type x y z
 dump_modify   1 sort id
 
 
@@ -54,7 +54,7 @@ unfix 1
 
 # Melting
 
-fix 1 all nvt temp 300.0 2800.0 1.0
+fix 1 all nvt temp 300.0 2800.0 0.1
 
 run 50000
 unfix 1
@@ -63,11 +63,11 @@ print "liquid density: ${den1}"
 
 
 # equilibrium
-fix 1 all nvt temp 2850.0 2850.0 1.0
+fix 1 all nvt temp 2850.0 2850.0 0.1
 
 undump 1
 undump 2
-dump  1 all custom 1000 ./dump/*.dump_quench id type x y z
+dump  1 all custom 1000 ./dump/*.atom id type x y z
 dump_modify   1 sort id
 dump		2 all image 1000 ./dump/image_quench.*.jpg type type &
 		zoom 1 adiam 1.2
@@ -78,7 +78,7 @@ run 5000
 unfix 1
 
 #quenching
-fix 1 all nvt temp 2850.0 300.0 1.0
+fix 1 all nvt temp 2850.0 300.0 0.1
 
 run 50000
 unfix 1
