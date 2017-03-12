@@ -1,0 +1,83 @@
+#minimize quartz geometry
+
+#initialize simulation box
+
+units           metal
+newton          on
+atom_style      charge
+dimension       3
+boundary        p p p
+
+#lattice parameters and basis of alpha quartz from mincryst card 7096
+
+lattice custom 5.409 origin 0.0 0.0 0.0 &
+a1 0.9101497504 0      0 &
+a2 -0.4550748752 0.7882128053 0 &
+a3 0      0      1 &
+basis  0.468       0.0         0.0        &
+basis  0.414       0.264       0.121      &
+basis  0.0         0.468       0.6667     &
+basis  0.532       0.532       0.3333     &
+basis  0.736       0.15        0.7877     &
+basis  0.85        0.586       0.4543     &
+basis  0.264       0.414       0.5456     &
+basis  0.15        0.736       0.8789     &
+basis  0.586       0.85        0.2123
+
+variable n equal 10
+
+#create simulation box and create and define atoms
+
+region        simbox prism 0 10 0 10 0 10 0. 0. 0. units lattice
+
+create_box 2 simbox
+
+create_atoms 1 box &
+basis 1 1 &
+basis 2 2 &
+basis 3 1 &
+basis 4 1 &
+basis 5 2 &
+basis 6 2 &
+basis 7 2 &
+basis 8 2 &
+basis 9 2 
+
+mass 1 28.09
+mass 2 16.0
+
+group    siliconatoms type 1
+group    oxygenatoms type 2
+
+
+set    group siliconatoms charge 2.4
+set    group oxygenatoms charge -1.2
+
+#BKS potential
+
+kspace_style  pppm 0.00001
+pair_style buck/coul/long 8.0
+pair_coeff 1 1 0.0 0.10 0.0
+pair_coeff 1 2 18003.7572 0.205205 133.5381
+pair_coeff 2 2 1388.7730 0.362319 175.0
+ 
+variable density equal "(mass(all)*1.660538782) / (vol)"
+ 
+#monitor 
+thermo 1
+thermo_style    custom step temp etotal pe evdwl ecoul press vol lx ly lz v_density xy yz xz cpuremain
+
+#minimization run for geometry
+fix 1 all box/relax tri 0.0
+
+minimize 0 1.0e-1000 1000 1000
+
+
+print "Final density: ${density}"
+
+write_restart restart.quartz.cubic.10
+
+
+
+
+

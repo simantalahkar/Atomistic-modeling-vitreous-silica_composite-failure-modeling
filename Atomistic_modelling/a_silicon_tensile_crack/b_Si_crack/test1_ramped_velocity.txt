@@ -1,0 +1,86 @@
+# 3d Si crack simulation
+
+units 		metal
+dimension	3
+boundary	s	s	p
+atom_style	atomic
+variable latparam equal 5.431
+
+# create required geometry
+
+lattice 	diamond ${latparam} orient x 1 1 -2 orient y 1 1 1 orient z 1 -1 0
+region		whole block 0 135 0 42 0 0.5 units lattice
+#5 atom groups
+create_box	5 whole
+create_atoms	1 region whole
+
+mass 1 28.0
+mass 2 28.0
+mass 3 28.0
+mass 4 28.0
+mass 5 28.0
+
+# potentials
+
+pair_style	sw
+pair_coeff	* * Si.sw Si Si Si Si Si
+
+# define groups
+
+region	        1 block INF INF INF 1.25 INF INF
+group		lower region 1
+region		2 block INF INF 40.75 INF INF INF
+group		upper region 2
+group		boundary union lower upper
+group		mobile subtract all boundary
+
+region		leftupper block INF 20 20 INF INF INF
+region		leftlower block INF 20 INF 20 INF INF
+group		leftupper region leftupper
+group		leftlower region leftlower
+
+set		group leftupper type 2
+set		group leftlower type 3
+set		group lower type 4
+set		group upper type 5
+
+# initial velocities
+
+compute	  	new mobile temp
+velocity	mobile create 300 887723 temp new
+velocity	upper set 0.0 0.3 0.0
+velocity	mobile ramp vy 0.0 0.3 y 1.25 40.75 sum yes  
+#gradually increasing velocity from lower to upper edge
+
+# fixes
+
+fix		1 all nve 
+fix		2 boundary setforce NULL 0.0 0.0
+
+# run
+
+timestep	0.002
+
+#monitor
+thermo		200
+thermo_modify	temp new
+
+#crack
+neigh_modify	exclude type 2 3
+
+#outputs
+
+#vmd files
+dump		1 all atom 500 ./dump/dump.crack_*.lammpstrj
+
+#normal image view
+dump		2 all image 250 ./dump/test.image.*.jpg mass type view 0 -90 size 2048 1152 box yes 0.5 &
+		zoom 1.6 adiam 1.5
+dump_modify	2 pad 4		#output file name number format
+dump_modify 2 backcolor white  #black white colored image
+
+dump		3 all movie 250 ./dump/movie.mpg type type &
+		zoom 1.6 adiam 1.5
+dump_modify	3 pad 4
+
+run		10000

@@ -1,0 +1,105 @@
+#tensile test for quenched silica
+
+#read the quenched silica model
+
+read_restart restart.glass.nvt.cubic.10
+
+#potential
+kspace_style  pppm 0.00001
+pair_style buck/coul/long 8.0
+pair_coeff 1 1 0.0 0.10 0.0
+pair_coeff 1 2 18003.7572 0.205205 133.5381
+pair_coeff 2 2 1388.7730 0.362319 175.0
+
+neighbor  2.5 bin
+neigh_modify  every 1 delay 0 check yes page 500000 one 50000
+
+
+#compute
+compute new all temp
+
+
+
+
+# EQUILIBRATION run
+
+#reset_timestep	0
+timestep 0.001
+fix 1 all npt temp 300.00 300.00 1 iso 0 0 1 drag 1 
+
+# Set thermo output
+thermo 50
+thermo_style custom step  pe lx ly lz press pxx pyy pzz temp cpuremain
+
+# Run for at least 10 picosecond (assuming 1 fs timestep)
+run 10000
+unfix 1
+
+# Store final cell length for strain calculations
+variable tmp equal "lx"
+variable L0 equal ${tmp}
+variable tmp equal "ly"
+variable L1 equal ${tmp}
+
+print "Initial x Length, L0: ${L0}"
+print "Initial y Length, L1: ${L1}"
+
+variable den equal "(mass(all)*1.660538782)/(vol)"
+print "final density: ${den}"
+
+
+
+######################################
+# DEFORMATION
+#reset_timestep	0
+
+fix		1 all npt temp 300.0 300.0 1 y 0 0 1 z 0 0 1 drag 1
+variable srate equal 1.0e10
+variable srate1 equal "v_srate / 1.0e12"
+fix		2 all deform 1 x erate ${srate1} units box remap x
+
+
+# Output strain and stress info to file
+# for units metal, pressure is in [bars] = 100 [kPa] = 1/10000 [GPa]
+# p2, p3, p4 are in GPa
+variable strain equal "(lx - v_L0)/v_L0"
+variable strain1 equal "(ly - v_L1)/v_L1"
+variable p1 equal "v_strain"
+variable p2 equal "-pxx/10000"
+variable p3 equal "-pyy/10000"
+variable p4 equal "-pzz/10000"
+variable p5 equal "v_strain1"
+
+
+fix def1 all print 50 "${p1} ${p2} ${p3} ${p4} ${p5}" file stress_strain_50.txt screen no
+
+compute rdf1 all rdf 10000 1 2 2 1
+fix rdff all ave/time 100 1 100 c_rdf1[*] file rdf_Si_O.rdf mode vector
+
+
+
+#output data
+
+dump		1 all atom 100 ./dump/dump.tensile_*.lammpstrj
+
+dump		2 all image 250 ./dump/image.tensile.*.jpg type type &
+		zoom 1 adiam 1.2
+dump_modify	2 pad 4
+
+dump		1 all custom 100 ./dump/dump.tensile_*.custom id type x y z
+
+
+
+# Display thermo
+thermo 	100
+thermo_style	custom step v_strain temp v_p1 v_p5 v_p2 v_p3 v_p4 ke pe press cpuremain
+
+run		60000
+
+variable natoms equal "count(all)" 
+print "Number of atoms = ${natoms};"
+
+
+######################################
+# SIMULATION DONE
+print "All done"
