@@ -33,7 +33,7 @@ compute peratom all pe/atom
 reset_timestep	0
 timestep 0.001
 velocity all create 300 12345 mom yes rot no
-fix 1 all npt temp 300 300 1 iso 0 0 1 drag 1 
+fix 1 all npt temp 300 300 0.1 iso 0 0 1 drag 2 
 
 # Set thermo output
 thermo 1000
@@ -57,7 +57,7 @@ print "Initial y Length, L1: ${L1}"
 # DEFORMATION
 reset_timestep	0
 
-fix		1 all npt temp 300 300 1 y 0 0 1 z 0 0 1 drag 1
+fix		1 all npt temp 300 300 0.1 y 0 0 1 z 0 0 1 drag 2
 variable srate equal 1.0e10
 variable srate1 equal "v_srate / 1.0e12"
 fix		2 all deform 1 x erate ${srate1} units box remap x
