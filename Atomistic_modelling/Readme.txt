@@ -4,5 +4,5 @@ There are other matlab(*.m) and python scripts which help in visualizing and pro
 Lammps scripts created restart files that are also included and can be used to restart the system from previous run.
 There has to be a dump directory for running the lammps scripts to store the output images and atom coordinates from the run (as coded in the included scripts). 
 
-Some results are also included. Some initial results have been committed here from the latest project. It will be updated progressively.
+Some results are also included. Some initial results have been committed here from the LATEST PROJECT on VITREOUS SILICA. It will be updated progressively.
 
